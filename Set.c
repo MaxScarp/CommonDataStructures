@@ -81,11 +81,117 @@ TABLE set_table_new(const size_t hashmapSize)
     if(!table->nodes)
     {
         free(table);
-        fprintf(stderr, "Error: Unable to allocate enough memory for nodes!\n");
+        fprintf(stderr, "Error: Unable to allocate enough memory for node!\n");
         return NULL;
     }
 
     return table;
+}
+
+NODE set_insert(TABLE table, const char* key)
+{
+    if(!table)
+    {
+        fprintf(stderr, "Error: Trying to access an empty table!\n");
+        return NULL;
+    }
+
+    const size_t keyLen = strlen(key);
+    if(!key || !keyLen)
+    {
+        fprintf(stderr, "Error: Trying to insert an empty value!\n");
+        return NULL;
+    }
+
+    size_t hash = djb33x_hash(key);
+    size_t index = hash % table->hashmapSize;
+
+    NODE head = table->nodes[index];
+    if(!head)
+    {
+        table->nodes[index] = malloc(sizeof(list_string_item));
+        if(!table->nodes[index])
+        {
+            fprintf(stderr, "Error: Unable to allocate enough memory for node!\n");
+            return NULL;
+        }
+
+        table->nodes[index]->string = key;
+        table->nodes[index]->next = NULL;
+
+        return table->nodes[index];
+    }
+
+    if(strcmp(head->string, key) == 0)
+    {
+        fprintf(stderr, "Error: Trying to insert an existing key: %s found at index %zu position %d!\n", key, index, 1);
+        return NULL;
+    }
+    
+    if(head->next)
+    {
+        NODE currentNode = head->next;
+        int position = 0;
+        while(currentNode)
+        {
+            position++;
+
+            if(strcmp(currentNode->string, key) == 0)
+            {
+                fprintf(stderr, "Error: Trying to insert an existing key: %s found at index %zu position %d!\n", key, index, position);
+                return NULL;
+            }
+
+            currentNode = currentNode->next;
+        }
+    }
+
+    NODE newNode = malloc(sizeof(list_string_item));
+    if(!newNode)
+    {
+        fprintf(stderr, "Error: Unable to allocate enough memory for node!\n");
+        return NULL;
+    }
+
+    newNode->string = key;
+    newNode->next = NULL;
+
+    NODE currentNode = head;
+    while(currentNode->next)
+    {
+        currentNode = currentNode->next;
+    }
+    currentNode->next = newNode;
+
+    return newNode;
+}
+
+void set_print_nodes(NODE head, const int index)
+{
+    NODE currentNode = head;
+    while(currentNode)
+    {
+        printf("Index %d: %s\n", index, currentNode->string);
+        currentNode = currentNode->next;
+    }
+
+    return;
+}
+
+void set_print_table(TABLE table)
+{
+    if(!table)
+    {
+        fprintf(stderr, "Error: Trying to print an empty table!\n");
+        return;
+    }
+
+    for(int i = 0; i < table->hashmapSize; i++)
+    {
+        set_print_nodes(table->nodes[i], i);
+    }
+
+    return;
 }
 
 NODE set_search(TABLE table, const char* key)
@@ -118,7 +224,7 @@ NODE set_search(TABLE table, const char* key)
     {
         position++;
 
-        if(strcmp(currentNode->key, key) == 0)
+        if(strcmp(currentNode->string, key) == 0)
         {
             printf("Key %s found at index %zu position %d\n", key, index, position);
             return currentNode;
@@ -129,112 +235,6 @@ NODE set_search(TABLE table, const char* key)
 
     fprintf(stderr, "Error: No item named %s found!\n", key);
     return NULL;
-}
-
-NODE set_insert(TABLE table, const char* key)
-{
-    if(!table)
-    {
-        fprintf(stderr, "Error: Trying to access an empty table!\n");
-        return NULL;
-    }
-
-    const size_t keyLen = strlen(key);
-    if(!key || !keyLen)
-    {
-        fprintf(stderr, "Error: Trying to insert an empty value!\n");
-        return NULL;
-    }
-
-    size_t hash = djb33x_hash(key);
-    size_t index = hash % table->hashmapSize;
-
-    NODE head = table->nodes[index];
-    if(!head)
-    {
-        table->nodes[index] = malloc(sizeof(set_node));
-        if(!table->nodes[index])
-        {
-            fprintf(stderr, "Error: Unable to allocate enough memory for node!\n");
-            return NULL;
-        }
-
-        table->nodes[index]->key = key;
-        table->nodes[index]->next = NULL;
-
-        return table->nodes[index];
-    }
-
-    if(strcmp(head->key, key) == 0)
-    {
-        fprintf(stderr, "Error: Trying to insert an existing key: %s found at index %zu position %d!\n", key, index, 1);
-        return NULL;
-    }
-    
-    if(head->next)
-    {
-        NODE currentNode = head->next;
-        int position = 0;
-        while(currentNode)
-        {
-            position++;
-
-            if(strcmp(currentNode->key, key) == 0)
-            {
-                fprintf(stderr, "Error: Trying to insert an existing key: %s found at index %zu position %d!\n", key, index, position);
-                return NULL;
-            }
-
-            currentNode = currentNode->next;
-        }
-    }
-
-    NODE newNode = malloc(sizeof(set_node));
-    if(!newNode)
-    {
-        fprintf(stderr, "Error: Unable to allocate enough memory for node!\n");
-        return NULL;
-    }
-
-    newNode->key = key;
-    newNode->next = NULL;
-
-    NODE currentNode = head;
-    while(currentNode->next)
-    {
-        currentNode = currentNode->next;
-    }
-    currentNode->next = newNode;
-
-    return newNode;
-}
-
-void set_print_nodes(NODE head, const int index)
-{
-    NODE currentNode = head;
-    while(currentNode)
-    {
-        printf("Index %d: %s\n", index, currentNode->key);
-        currentNode = currentNode->next;
-    }
-
-    return;
-}
-
-void set_print_table(TABLE table)
-{
-    if(!table)
-    {
-        fprintf(stderr, "Error: Trying to print an empty table!\n");
-        return;
-    }
-
-    for(int i = 0; i < table->hashmapSize; i++)
-    {
-        set_print_nodes(table->nodes[i], i);
-    }
-
-    return;
 }
 
 void set_remove(TABLE table, const char* key)
@@ -265,7 +265,7 @@ void set_remove(TABLE table, const char* key)
     NODE previousNode = NULL;
     while(currentNode)
     {
-        if(strcmp(currentNode->key, key) == 0)
+        if(strcmp(currentNode->string, key) == 0)
         {
             if(!previousNode)
             {

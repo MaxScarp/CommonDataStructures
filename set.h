@@ -1,11 +1,6 @@
-#define NODE set_node*
-#define TABLE set_table*
+#include "linkedList.h"
 
-typedef struct set_node
-{
-    const char* key;
-    struct set_node* next;
-} set_node;
+#define TABLE set_table*
 
 typedef struct set_table
 {
