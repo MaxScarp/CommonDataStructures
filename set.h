@@ -10,8 +10,7 @@ typedef struct set_table
 
 size_t djb33x_hash(const char *key);
 TABLE set_table_new(const size_t hashmapSize);
-NODE set_search(TABLE table, const char* key);
-NODE set_insert(TABLE table, const char* key);
-void set_print_nodes(NODE head, const int index);
+NODE set_search(TABLE table, NODE item);
+NODE set_insert(TABLE table, NODE item);
 void set_print_table(TABLE table);
-void set_remove(TABLE table, const char* key);
+void set_remove(TABLE table, NODE item);

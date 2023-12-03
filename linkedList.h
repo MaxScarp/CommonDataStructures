@@ -14,4 +14,5 @@ void list_print(NODE head);
 NODE list_pop_first_item(NODE* head);
 NODE list_pop_last_item(NODE* head);
 void list_reverse(NODE* head);
+NODE list_search(NODE currentNode, NODE* previousNode, NODE item);
 void list_remove(NODE* head, NODE item);
