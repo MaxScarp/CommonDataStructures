@@ -1,7 +1,3 @@
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 #include "doublyLinkedList.h"
 
 int main(int argc, char** argv, char** envs)

@@ -1,7 +1,3 @@
-#include <stdlib.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <string.h>
 #include "linkedList.h"
 
 //int main(int argc, char** argv, char** envs)
