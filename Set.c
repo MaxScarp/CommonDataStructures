@@ -1,53 +1,53 @@
 #include "set.h"
 
-int main(int argc, char** argv, char** envs)
-{
-    TABLE table = set_table_new(3);
-
-    NODE item1 = list_string_item_new("PIPPO");
-    NODE item2 = list_string_item_new("PLUTO");
-    NODE item3 = list_string_item_new("FEDERICO");
-    NODE item4 = list_string_item_new("RICCARDO");
-    NODE item5 = list_string_item_new("ANASTASIA");
-    NODE item6 = list_string_item_new("TEST");
-
-    printf("---FILL---\n");
-
-    set_print_table(table);
-    set_insert(table, item1);
-    set_insert(table, item2);
-    set_insert(table, item3);
-    set_insert(table, item4);
-    set_insert(table, item5);
-    set_print_table(table);
-
-    printf("---INSERT_ERROR---\n");
-
-    set_insert(table, item1);
-    set_insert(table, item5);
-    set_insert(table, item3);
-    set_insert(table, item4);
-
-    printf("---SEARCH---\n");
-
-    set_search(table, item3);
-    set_search(table, item1);
-    set_search(table, item5);
-    set_search(table, item4);
-    set_search(table, item6);
-
-    printf("---REMOVE---\n");
-
-    set_remove(table, item6);
-    set_remove(table, item5);
-    set_remove(table, item1);
-    set_remove(table, item2);
-    set_remove(table, item4);
-    set_remove(table, item3);
-    set_remove(table, item6);
-
-    return 0;
-}
+//int main(int argc, char** argv, char** envs)
+//{
+//    TABLE table = set_table_new(3);
+//
+//    NODE item1 = list_string_item_new("PIPPO");
+//    NODE item2 = list_string_item_new("PLUTO");
+//    NODE item3 = list_string_item_new("FEDERICO");
+//    NODE item4 = list_string_item_new("RICCARDO");
+//    NODE item5 = list_string_item_new("ANASTASIA");
+//    NODE item6 = list_string_item_new("TEST");
+//
+//    printf("---FILL---\n");
+//
+//    set_print_table(table);
+//    set_insert(table, item1);
+//    set_insert(table, item2);
+//    set_insert(table, item3);
+//    set_insert(table, item4);
+//    set_insert(table, item5);
+//    set_print_table(table);
+//
+//    printf("---INSERT_ERROR---\n");
+//
+//    set_insert(table, item1);
+//    set_insert(table, item5);
+//    set_insert(table, item3);
+//    set_insert(table, item4);
+//
+//    printf("---SEARCH---\n");
+//
+//    set_search(table, item3);
+//    set_search(table, item1);
+//    set_search(table, item5);
+//    set_search(table, item4);
+//    set_search(table, item6);
+//
+//    printf("---REMOVE---\n");
+//
+//    set_remove(table, item6);
+//    set_remove(table, item5);
+//    set_remove(table, item1);
+//    set_remove(table, item2);
+//    set_remove(table, item4);
+//    set_remove(table, item3);
+//    set_remove(table, item6);
+//
+//    return 0;
+//}
 
 #pragma region "FUNCTIONS"
 size_t djb33x_hash(const char* key)
