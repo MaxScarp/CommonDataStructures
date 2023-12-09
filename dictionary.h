@@ -4,6 +4,7 @@
 #define ITEM dictionary_item*
 #define DICTIONARY dictionary*
 #define VALUE void*
+#define COLLISION_THRESHOLD 3
 
 typedef union value_item {
     char* str_value;
@@ -24,4 +25,5 @@ typedef struct dictionary
 {
     ITEM* items;
     size_t hashmapSize;
+    size_t collisionAmount;
 } dictionary;
