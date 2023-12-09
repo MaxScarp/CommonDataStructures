@@ -41,6 +41,31 @@ int dictionary_calculate_index(DICTIONARY dictionary, NODE key)
     return index;
 }
 
+bool is_string(VALUE value)
+{
+    return (sizeof(*(char**)value) == sizeof(char*));
+}
+bool is_int(VALUE value)
+{
+    return (sizeof(*(int*)value) == sizeof(int));
+}
+bool is_char(VALUE value)
+{
+    return (sizeof(*(char*)value) == sizeof(char));
+}
+bool is_float(VALUE value)
+{
+    return (sizeof(*(float*)value) == sizeof(float));
+}
+bool is_double(VALUE value)
+{
+    return (sizeof(*(double*)value) == sizeof(double));
+}
+bool is_bool(VALUE value)
+{
+    return (sizeof(*(bool*)value) == sizeof(bool));
+}
+
 ITEM dictionary_insert(DICTIONARY dictionary, NODE key, VALUE value)
 {
     if(!dictionary)
@@ -71,11 +96,43 @@ ITEM dictionary_insert(DICTIONARY dictionary, NODE key, VALUE value)
         if(!dictionary->items[index]->key)
         {
             fprintf(stderr, "Error: Unable to allocate enough memory for stringItem!\n");
+            free(dictionary->items[index]);
             return NULL;
         }
 
         dictionary->items[index]->key->string = key->string;
-        dictionary->items[index]->value = value;
+        
+        if(is_string(value))
+        {
+            dictionary->items[index]->value.str_value = (char*)value;
+        }
+        else if(is_int(value))
+        {
+            dictionary->items[index]->value.int_value = *(int*)value;
+        }
+        else if(is_char(value))
+        {
+            dictionary->items[index]->value.char_value = *(char*)value;
+        }
+        else if(is_float(value))
+        {
+            dictionary->items[index]->value.float_value = *(float*)value;
+        }
+        else if(is_double(value))
+        {
+            dictionary->items[index]->value.double_value = *(double*)value;
+        }
+        else if(is_bool(value))
+        {
+            dictionary->items[index]->value.bool_value = *(bool*)value;
+        }
+        else
+        {
+            fprintf(stderr, "Error: Value type not supported!\n");
+            free(dictionary->items[index]->key);
+            free(dictionary->items[index]);
+            return NULL;
+        }
 
         return dictionary->items[index];
     }
@@ -115,7 +172,38 @@ ITEM dictionary_insert(DICTIONARY dictionary, NODE key, VALUE value)
 
     newItem->key = newListStringItem;
     newItem->key->string = key->string;
-    newItem->value = value;
+    
+    if(is_string(value))
+    {
+        newItem->value.str_value = (char*)value;
+    }
+    else if(is_int(value))
+    {
+        newItem->value.int_value = *(int*)value;
+    }
+    else if(is_char(value))
+    {
+        newItem->value.char_value = *(char*)value;
+    }
+    else if(is_float(value))
+    {
+        newItem->value.float_value = *(float*)value;
+    }
+    else if(is_double(value))
+    {
+        newItem->value.double_value = *(double*)value;
+    }
+    else if(is_bool(value))
+    {
+        newItem->value.bool_value = *(bool*)value;
+    }
+    else
+    {
+        fprintf(stderr, "Error: Value type not supported!\n");
+        free(newItem->key);
+        free(newItem);
+        return NULL;
+    }
 
     list_append(POINTER_TO_NODE(currentItem->key), newListStringItem);
 
@@ -210,12 +298,12 @@ void dictionary_remove(DICTIONARY dictionary, ITEM item)
     return;
 }
 
-VALUE dictionary_get_value(DICTIONARY dictionary, ITEM item)
+value_item* dictionary_get_value(DICTIONARY dictionary, ITEM item)
 {
     ITEM itemFound = dictionary_search(dictionary, item, -1);
     if(itemFound)
     {
-        return item->value;
+        return &(item->value);
     }
 
     return NULL;
@@ -236,11 +324,11 @@ int main(int argc, char** argv, char** envs)
 
     dictionary_print(dictionary);
     ITEM item1 = dictionary_insert(dictionary, key1, (VALUE)"NUCLEO");
-    ITEM item2 = dictionary_insert(dictionary, key2, (VALUE)500);
+    ITEM item2 = dictionary_insert(dictionary, key2, (VALUE)600000);
     ITEM item3 = dictionary_insert(dictionary, key3, (VALUE)'h');
     ITEM item4 = dictionary_insert(dictionary, key4, (VALUE)-10);
-    ITEM item5 = dictionary_insert(dictionary, key5, (VALUE)-500);
-    ITEM item6 = dictionary_insert(dictionary, key6, (VALUE)-1000);
+    ITEM item5 = dictionary_insert(dictionary, key5, (VALUE)-50000);
+    ITEM item6 = dictionary_insert(dictionary, key6, (VALUE)false);
     dictionary_print(dictionary);
 
     printf("---INSERT_ERROR---\n");
@@ -260,12 +348,12 @@ int main(int argc, char** argv, char** envs)
     
     printf("---GET_VALUE---\n");
 
-    printf("%s->%s\n",item1->key->string, (char*)dictionary_get_value(dictionary, item1));
-    printf("%s->%d\n",item2->key->string, (int)dictionary_get_value(dictionary, item2));
-    printf("%s->%c\n",item3->key->string, (char)dictionary_get_value(dictionary, item3));
-    printf("%s->%d\n",item4->key->string, (int)dictionary_get_value(dictionary, item4));
-    printf("%s->%d\n",item5->key->string, (int)dictionary_get_value(dictionary, item5));
-    printf("%s->%d\n",item6->key->string, (int)dictionary_get_value(dictionary, item6));
+    printf("%s->%s\n",item1->key->string, *(char**)dictionary_get_value(dictionary, item1));
+    printf("%s->%d\n",item2->key->string, *(int*)dictionary_get_value(dictionary, item2));
+    printf("%s->%c\n",item3->key->string, *(char*)dictionary_get_value(dictionary, item3));
+    printf("%s->%d\n",item4->key->string, *(int*)dictionary_get_value(dictionary, item4));
+    printf("%s->%d\n",item5->key->string, *(int*)dictionary_get_value(dictionary, item5));
+    printf("%s->%d\n",item6->key->string, *(int*)dictionary_get_value(dictionary, item6));
 
     printf("---REMOVE---\n");
 
