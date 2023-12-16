@@ -5,21 +5,22 @@ int main(int argc, char** argv, char** envs)
     printf("----------HEAD1----------\n");
 
     NODE head1 = NULL;
+    NODE tail1 = NULL;
 
     NODE item1 = list_string_item_new("FIRST ELEMENT");
     NODE item2 = list_string_item_new("SECOND ELEMENT");
     NODE item3 = list_string_item_new("THIRD ELEMENT");
     NODE item4 = list_string_item_new("FOURTH ELEMENT");
 
-    list_append(POINTER_TO_NODE(head1), item1);
-    list_append(POINTER_TO_NODE(head1), item2);
-    list_append(POINTER_TO_NODE(head1), item3);
-    list_append(POINTER_TO_NODE(head1), item4);
+    list_append(POINTER_TO_NODE(head1), POINTER_TO_NODE(tail1),  item1);
+    list_append(POINTER_TO_NODE(head1), POINTER_TO_NODE(tail1), item2);
+    list_append(POINTER_TO_NODE(head1), POINTER_TO_NODE(tail1), item3);
+    list_append(POINTER_TO_NODE(head1), POINTER_TO_NODE(tail1), item4);
     list_print(head1);
 
-    NODE poppedItem1 = list_pop_first_item(POINTER_TO_NODE(head1));
+    NODE poppedItem1 = list_pop_first_item(POINTER_TO_NODE(head1), POINTER_TO_NODE(tail1));
     printf("The element %s has been popped from the list!\n", poppedItem1->string);
-    NODE poppedItem2 = list_pop_last_item(POINTER_TO_NODE(head1));
+    NODE poppedItem2 = list_pop_last_item(POINTER_TO_NODE(head1), POINTER_TO_NODE(tail1));
     printf("The element %s has been popped from the list!\n", poppedItem2->string);
     list_print(head1);
 
@@ -33,13 +34,14 @@ int main(int argc, char** argv, char** envs)
     printf("----------HEAD2----------\n");
 
     NODE head2 = NULL;
+    NODE tail2 = NULL;
 
     NODE item5 = list_string_item_new("FIFTH ELEMENT");
     NODE item6 = list_string_item_new("SIXTH ELEMENT");
     NODE item7 = list_string_item_new("SEVENTH ELEMENT");
 
-    list_append(POINTER_TO_NODE(head2), poppedItem1);
-    list_append(POINTER_TO_NODE(head2), poppedItem2);
+    list_append(POINTER_TO_NODE(head2), POINTER_TO_NODE(tail2), poppedItem1);
+    list_append(POINTER_TO_NODE(head2), POINTER_TO_NODE(tail2), poppedItem2);
     list_print(head2);
     
     printf("---INSERT_AFTER---\n");
@@ -56,14 +58,11 @@ int main(int argc, char** argv, char** envs)
 
     printf("---INSERT_BEFORE---\n");
 
-    list_insert_before(POINTER_TO_NODE(head2), item6, list_pop_first_item(POINTER_TO_NODE(head2)));
+    list_insert_before(POINTER_TO_NODE(head2), item6, list_pop_first_item(POINTER_TO_NODE(head2), POINTER_TO_NODE(tail2)));
     printf("The first item of the list has been inserted before item6\n");
     list_print(head2);
-    list_insert_before(POINTER_TO_NODE(head2), item5, list_pop_last_item(POINTER_TO_NODE(head2)));
+    list_insert_before(POINTER_TO_NODE(head2), item5, list_pop_last_item(POINTER_TO_NODE(head2), POINTER_TO_NODE(tail2)));
     printf("The last item of the list has been inserted before item5\n");
-    list_print(head2);
-    list_insert_before(POINTER_TO_NODE(head2), item6, list_pop_last_item(POINTER_TO_NODE(head2)));
-    printf("The new last item of the list has been inserted before item6\n");
     list_print(head2);
 
     printf("----SHUFFLE---\n");
@@ -127,7 +126,7 @@ NODE list_get_tail(NODE head)
     return lastNode;
 }
 
-void list_append(NODE* head, NODE item)
+void list_append(NODE* head, NODE* tail, NODE item)
 {
     if(!item)
     {
@@ -135,24 +134,24 @@ void list_append(NODE* head, NODE item)
         return;
     }
 
-    NODE currentNode = list_get_tail(*head);
-
-    if(!currentNode)
+    if(!(*tail))
     {
         *head = item;
+        *tail = item;
     }
     else
     {
-        currentNode->next = item;
+        (*tail)->next = item;
     }
 
-    item->previous = currentNode;
+    item->previous = *tail;
     item->next = NULL;
+    *tail = item;
 
     return;
 }
 
-NODE list_pop_first_item(NODE* head)
+NODE list_pop_first_item(NODE* head, NODE* tail)
 {
     NODE currentNode = *head;
     if(!currentNode)
@@ -161,23 +160,43 @@ NODE list_pop_first_item(NODE* head)
         return NULL;
     }
 
-    *head = currentNode->next;
+    *head = (*head)->next;
+
+    if(*head)
+    {
+        (*head)->previous = NULL;
+    }
+    else
+    {
+        *tail = NULL;
+    }
+
     currentNode->previous = NULL;
     currentNode->next = NULL;
 
     return currentNode;
 }
 
-NODE list_pop_last_item(NODE* head)
+NODE list_pop_last_item(NODE* head, NODE* tail)
 {
-    NODE currentNode = list_get_tail(*head);
+    NODE currentNode = *tail;
     if(!currentNode)
     {
         fprintf(stderr, "Error: Trying to pop from an empty list!\n");
         return NULL;
     }
 
-    currentNode->previous->next = NULL;
+    if(currentNode->previous)
+    {
+        (*tail)->previous->next = NULL;
+    }
+    else
+    {
+        *head = NULL;
+    }
+
+    (*tail) = currentNode->previous;
+
     currentNode->previous = NULL;
     currentNode->next = NULL;
 
